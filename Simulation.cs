@@ -8,6 +8,8 @@ namespace GameOfLife {
 
         private const int TIME_TO_WAIT_IN_MILLISECONDS = 500;
         private int[][] _population { get; }
+        private int[][] _state { get; set; }
+        private int stateIdentifiedCount { get; set; }
 
         #endregion 
 
@@ -19,14 +21,20 @@ namespace GameOfLife {
 
         #region Public Methods
 
-        //TODO: Parameter to shift all cell states and keep shifting them if the same state appears two or three times.
-        internal void Start(bool infiniteMoments = false) {
-            if (infiniteMoments) {
-                while (true) {
-                    RunMoment();
+        internal void Start() {
+            _state = _population;
+            while (true) {
+                if (PreviousPopulationStateAndCurrentAreEqual()) {
+                    ++stateIdentifiedCount;
                 }
-            } else {
+                
+                if (stateIdentifiedCount > 2) {
+                    ShiftCells();
+                    stateIdentifiedCount = 0;
+                }
+
                 RunMoment();
+                _state = _population;
             }
         }
 
@@ -34,12 +42,39 @@ namespace GameOfLife {
 
         #region Private Methods
 
+        private bool PreviousPopulationStateAndCurrentAreEqual() {
+            for (int i = 0; i < _population.Length; i++) {
+                for (int j = 0; j < _population[i].Length; j++) {
+                    if (_population[i][j] != _state[i][j])
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        private void ShiftCells() {
+            for (int i = 0; i < _population.Length; i++) {
+                for (int j = 0; j < _population[i].Length; j++) {
+                    if (_population[i][j] == 1)
+                        Kill(ref _population[i][j]);
+                    else 
+                        GiveLife(ref _population[i][j]);
+                }
+            }
+        }
+
         private void RunMoment() {
             Thread.Sleep(TIME_TO_WAIT_IN_MILLISECONDS);
             PrintPopulation();
             CheckEachCellToDieOrLive();
             Thread.Sleep(TIME_TO_WAIT_IN_MILLISECONDS);
             Console.Clear();
+        }
+
+        private void PrintPopulation() {
+            for (int i = 0; i < _population.Length; i++) {
+                Console.WriteLine(string.Join(' ', _population[i]));
+            }
         }
 
         private void CheckEachCellToDieOrLive() {
@@ -93,10 +128,10 @@ namespace GameOfLife {
                     }
                 }
 
-            CheckRules(ref _population[i][j], ref livingNeighbors);
+            ApplyRules(ref _population[i][j], ref livingNeighbors);
         }
 
-        private void CheckRules(ref int cell, ref int livingNeighbors) {
+        private void ApplyRules(ref int cell, ref int livingNeighbors) {
             if (cell == 1 && livingNeighbors < 2) {
                 Kill(ref cell);
             } else if (cell == 1 && (livingNeighbors == 2 || livingNeighbors == 3)) {
@@ -110,12 +145,6 @@ namespace GameOfLife {
 
         private void Kill(ref int cell) => cell = 0;
         private void GiveLife(ref int cell) => cell = 1;
-
-        private void PrintPopulation() {
-            for (int i = 0; i < _population.Length; i++) {
-                Console.WriteLine(string.Join(' ', _population[i]));
-            }
-        }
 
         #endregion
     }
