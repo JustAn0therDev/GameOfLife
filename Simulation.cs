@@ -9,7 +9,7 @@ namespace GameOfLife {
         private const int TIME_TO_WAIT_IN_MILLISECONDS = 500;
         private int[][] _population { get; }
         private int[][] _state { get; set; }
-        private int stateIdentifiedCount { get; set; }
+        private int _stateIdentifiedCount { get; set; }
 
         #endregion 
 
@@ -25,12 +25,12 @@ namespace GameOfLife {
             _state = _population;
             while (true) {
                 if (PreviousPopulationStateAndCurrentAreEqual()) {
-                    ++stateIdentifiedCount;
+                    ++_stateIdentifiedCount;
                 }
                 
-                if (stateIdentifiedCount > 2) {
+                if (_stateIdentifiedCount > 2) {
                     ShiftCells();
-                    stateIdentifiedCount = 0;
+                    _stateIdentifiedCount = 0;
                 }
 
                 RunMoment();
