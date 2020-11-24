@@ -1,11 +1,8 @@
 ﻿using System;
 
-namespace GameOfLife
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
+namespace GameOfLife {
+    class Program {
+        static void Main(string[] args) {
             int[][] population = new int[3][] { new int[3] { 0,1,0 }, new int[3] { 1,1,1 }, new int[3] { 1,1,1 } };
 
             try {
